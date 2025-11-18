@@ -225,67 +225,75 @@
     }
 
     // ===== Relatório de Auditoria =====
-    async function gerarRelatorio({seedInfo, seedHash, entradasBrutas, entradasProcessadas, resultado}){
-      const agora = new Date();
-      const iso = agora.toISOString();
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-      const header = [
-        'RELATÓRIO DE AUDITORIA — SORTEIO POR LISTA',
-        '------------------------------------------------------------',
-        `Data/Hora: ${agora.toLocaleString()} (${tz})`,
-        `ISO: ${iso}`,
-        `Navegador: ${navigator.userAgent}`,
-        `Semente: ${seedInfo}`,
-      ].join('\n');
+   
+async function gerarRelatorio({seedInfo, seedHash, entradasBrutas, entradasProcessadas, resultado}){
+  const agora = new Date();
+  const iso = agora.toISOString();
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const header = [
+    'RELATÓRIO DE AUDITORIA — SORTEIO POR LISTA',
+    '------------------------------------------------------------',
+    `Data/Hora: ${agora.toLocaleString()} (${tz})`,
+    `ISO: ${iso}`,
+    `Navegador: ${navigator.userAgent}`,
+    `Semente: ${seedInfo}`,
+  ].join('\n');
 
-      const entradasTxt = entradasBrutas.join('\n');
-      const processadasTxt = entradasProcessadas.join('\n');
-      const resultadoTxt = resultado.join('\n');
+  const entradasTxt = entradasBrutas.join('\n');
+  const processadasTxt = entradasProcessadas.join('\n');
+  const resultadoTxt = resultado.join('\n');
 
-      const hashInput = await sha256('INPUT\n'+entradasTxt);
-      const hashProc  = await sha256('PROC\n'+processadasTxt);
-      const hashOut   = await sha256('OUTPUT\n'+resultadoTxt);
+  const hashInput = await sha256('INPUT\n'+entradasTxt);
+  const hashProc  = await sha256('PROC\n'+processadasTxt);
+  const hashOut   = await sha256('OUTPUT\n'+resultadoTxt);
 
-      const corpo = [
-        '',
-        '=== Métricas ===',
-        `Entradas (brutas): ${entradasBrutas.length}`,
-        `Entradas (após limpeza): ${entradasProcessadas.length}`,
-        `Resultado (total): ${resultado.length}`,
-        '',
-        '=== Opções aplicadas ===',
-        `Remover vazias: ${$('#ckTrim').checked}`,
-        `Remover duplicados: ${$('#ckDedup').checked}`,
-        `Ordenar antes de embaralhar: ${$('#ckSort').checked}`,
-        '',
-        '=== Hashes (SHA-256) ===',
-        `Seed hash: ${seedHash}`,
-        `Input hash: ${hashInput}`,
-        `Processado hash: ${hashProc}`,
-        `Resultado hash: ${hashOut}`,
-        '',
-        '=== Entradas (brutas) ===',
-        entradasTxt,
-        '',
-        '=== Entradas (processadas) ===',
-        processadasTxt,
-        '',
-        '=== Resultado (ordem final) ===',
-        resultado.map((n,i)=>`${String(i+1).padStart(3,' ')}. ${n}`).join('\n')
-      ].join('\n');
+  const corpo = [
+    '',
+    '=== Métricas ===',
+    `Entradas (brutas): ${entradasBrutas.length}`,
+    `Entradas (após limpeza): ${entradasProcessadas.length}`,
+    `Resultado (total): ${resultado.length}`,
+    '',
+    '=== Opções aplicadas ===',
+    `Remover vazias: ${$('#ckTrim').checked}`,
+    `Remover duplicados: ${$('#ckDedup').checked}`,
+    `Ordenar antes de embaralhar: ${$('#ckSort').checked}`,
+    '',
+    '=== Hashes (SHA-256) ===',
+    `Seed hash: ${seedHash}`,
+    `Input hash: ${hashInput}`,
+    `Processado hash: ${hashProc}`,
+    `Resultado hash: ${hashOut}`,
+    '',
+    '=== Entradas (brutas) ===',
+    entradasTxt,
+    '',
+    '=== Entradas (processadas) ===',
+    processadasTxt,
+    '',
+    '=== Resultado (ordem final) ===',
+    resultado.map((n,i)=>`${String(i+1).padStart(3,' ')}. ${n}`).join('\n')
+  ].join('\n');
 
-      const rel = header + '\n' + corpo + '\n';
+  // texto base do relatório (SEM ID ainda)
+  const relBase = header + '\n' + corpo + '\n';
 
-      // Hash do relatório completo = ID único auditável
-      const hashRel = await sha256('RELATORIO\n' + rel);
-      currentAuditId = hashRel;
+  // Hash do relatório base = ID único auditável
+  const hashRel = await sha256('RELATORIO\n' + relBase);
+  currentAuditId = hashRel;
 
-      txAudit.value = rel;
-      infoAudit.textContent = `Gerado em ${agora.toLocaleString()} — ${resultado.length} nomes — ID: ${hashRel.slice(0,16)}…`;
-      $('#btnCopyAudit').disabled = false;
-      $('#btnDownAudit').disabled = false;
-      $('#btnDownAuditPDF').disabled = false;
-    }
+  // Agora, adicionamos o ID como última linha visível do relatório
+  const relComId = relBase + '\nID: ' + hashRel + '\n';
+
+  txAudit.value = relComId;
+  infoAudit.textContent =
+    `Gerado em ${agora.toLocaleString()} — ${resultado.length} nomes — ID: ${hashRel.slice(0,16)}…`;
+
+  $('#btnCopyAudit').disabled = false;
+  $('#btnDownAudit').disabled = false;
+  $('#btnDownAuditPDF').disabled = false;
+}
+
 
     // ===== Sorteio =====
     function sortear(){
@@ -440,5 +448,6 @@
   </script>
 </body>
 </html>
+
 
 
