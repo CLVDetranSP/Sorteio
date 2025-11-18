@@ -9,85 +9,118 @@
     .mono{
       font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,liberation mono,monospace;
     }
-    /* textarea que cresce automaticamente */
     .autosize {
       overflow-y: hidden;
-      resize: none; /* impede o usuário de mexer no tamanho manualmente */
+      resize: none;
+    }
+    .disabled-btn {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   </style>
-  <!-- jsPDF para gerar PDF no navegador -->
+
+  <!-- jsPDF para PDF -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
+
 <body class="bg-slate-50 text-slate-900 min-h-screen">
   <div class="max-w-6xl mx-auto p-6 space-y-6">
     <header class="flex items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold">Sorteio Fila Única - Coordenadoria de Leilões de Veículos</h1>
         <p class="text-sm text-slate-600">
-          Sistema para a formação de filas de Leiloeiros e Profissionais terceirizados
-          habilitados para avaliação veicular.
+          Sistema para a formação de filas de Leiloeiros e Profissionais terceirizados habilitados para avaliação veicular.
         </p>
       </div>
     </header>
 
     <section class="grid lg:grid-cols-2 gap-6">
+
+      <!-- LISTA DE PARTICIPANTES -->
       <div class="space-y-3">
         <label class="text-sm font-medium">
           Insira a lista de participantes, processe a ordem aleatória e gere o relatório de auditoria.
         </label>
-        <!-- autosize aqui -->
+
         <textarea id="inLista" rows="4"
           class="w-full border rounded-xl p-3 mono autosize"
           placeholder="Lista de Participantes"></textarea>
       </div>
 
-      <div class="space-y-3">
+      <!-- CONTROLES E RESULTADO -->
+      <div class="space-y-6">
+
+        <!-- Botões principais -->
         <div class="flex flex-wrap gap-3">
-          <button id="btnSortear" class="px-4 py-2 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700">
+          <button id="btnSortear"
+            class="px-4 py-2 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700 disabled-btn"
+            disabled>
             Realizar Sorteio
           </button>
-          <button id="btnCopiar" class="px-4 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
-            Copiar resultado
+
+          <button id="btnVerificar"
+            class="px-4 py-2 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 disabled-btn"
+            disabled>
+            Verificar Sorteio
           </button>
-          <button id="btnCSV" class="px-4 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
-            Baixar CSV
-          </button>
-          <button id="btnLimpar" class="px-4 py-2 rounded-2xl bg-rose-100 hover:bg-rose-200">
+
+          <button id="btnLimpar"
+            class="px-4 py-2 rounded-2xl bg-rose-100 hover:bg-rose-200">
             Limpar
           </button>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-3">
+        <!-- Semente + Data ISO Local -->
+        <div class="grid md:grid-cols-2 gap-4">
+
           <div>
             <label class="text-sm font-medium">Semente</label>
-            <input id="inSeed" class="w-full border rounded-xl px-3 py-2 mono" placeholder="Ex.: 20251112" />
+            <input id="inSeed"
+              class="w-full border rounded-xl px-3 py-2 mono"
+              placeholder="Ex.: 20251112" />
             <p class="text-xs text-slate-500">
-              Se preencher, o sorteio pode ser reproduzido. Se vazio, a semente será gerada e exibida.
+              Para reprodução, informe a mesma semente registrada no relatório original.
+              Se estiver vazio no sorteio oficial, uma semente numérica será gerada automaticamente.
             </p>
           </div>
-          <div class="flex items-end">
-            <div class="flex flex-wrap items-center gap-3">
-              <label class="inline-flex items-center gap-2 text-sm">
-                <input id="ckTrim" type="checkbox" class="rounded" checked>
-                Remover linhas vazias
-              </label>
-              <label class="inline-flex items-center gap-2 text-sm">
-                <input id="ckDedup" type="checkbox" class="rounded" checked>
-                Remover duplicados (case-insensitive)
-              </label>
-              <label class="inline-flex items-center gap-2 text-sm">
-                <input id="ckSort" type="checkbox" class="rounded">
-                Ordenar alfabeticamente
-              </label>
-            </div>
+
+          <div>
+            <label class="text-sm font-medium">Data/Hora do Sorteio Original (ISO Local)</label>
+            <input id="inDataOriginal"
+              class="w-full border rounded-xl px-3 py-2 mono"
+              placeholder="Ex.: 2025-11-18T17:48:14-03:00" />
+            <p class="text-xs text-slate-500">
+              Para verificar sorteios antigos, cole o valor da linha
+              “ISO Local (America/Sao_Paulo)” do relatório de auditoria.
+            </p>
           </div>
         </div>
 
+        <!-- Opções -->
+        <div class="flex flex-wrap gap-6">
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input id="ckTrim" type="checkbox" class="rounded" checked>
+            Remover vazias
+          </label>
+
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input id="ckDedup" type="checkbox" class="rounded" checked>
+            Remover duplicados
+          </label>
+
+          <label class="inline-flex items-center gap-2 text-sm">
+            <input id="ckSort" type="checkbox" class="rounded">
+            Ordenar alfabeticamente
+          </label>
+        </div>
+
+        <!-- Resultado -->
         <div class="bg-white rounded-2xl shadow p-4 space-y-2">
           <div class="flex items-center justify-between">
             <h2 class="font-semibold">Resultado</h2>
             <div class="text-xs text-slate-500" id="infoSeed"></div>
           </div>
+
           <div class="border rounded-xl overflow-hidden">
             <table class="w-full text-sm">
               <thead class="bg-slate-100">
@@ -101,27 +134,38 @@
           </div>
         </div>
 
+        <!-- Relatório de Auditoria -->
         <div class="bg-white rounded-2xl shadow p-4 space-y-2">
           <div class="flex items-center justify-between">
             <h2 class="font-semibold">Relatório de Auditoria</h2>
             <div class="text-xs text-slate-500" id="infoAudit"></div>
           </div>
+
           <textarea id="txAudit" rows="12"
             class="w-full border rounded-xl p-3 mono"
             readonly></textarea>
+
           <div class="flex gap-3 flex-wrap">
-            <button id="btnCopyAudit" class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
+            <button id="btnCopyAudit"
+              class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300"
+              disabled>
               Copiar relatório
             </button>
-            <button id="btnDownAudit" class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
+
+            <button id="btnDownAudit"
+              class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300"
+              disabled>
               Baixar TXT
             </button>
-            <!-- botão PDF -->
-            <button id="btnDownAuditPDF" class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
+
+            <button id="btnDownAuditPDF"
+              class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300"
+              disabled>
               Baixar PDF
             </button>
           </div>
         </div>
+
       </div>
     </section>
   </div>
@@ -136,16 +180,18 @@
         const set = new Set();
         const out = [];
         for (const s of linhas){
-          const k = s.toLocaleLowerCase();
-          if (!set.has(k)){ set.add(k); out.push(s); }
+          const k = s.toLowerCase();
+          if (!set.has(k)){
+            set.add(k);
+            out.push(s);
+          }
         }
         linhas = out;
       }
-      if (presort) linhas.sort((a,b)=> a.localeCompare(b, 'pt'));
+      if (presort) linhas.sort((a,b)=> a.localeCompare(b,'pt'));
       return linhas;
     }
 
-    // Seedable RNG (Mulberry32)
     function mulberry32(a){
       return function(){
         var t = a += 0x6D2B79F5;
@@ -156,43 +202,56 @@
     }
 
     function hashStringToInt(str){
-      let h = 2166136261 >>> 0; // FNV-1a base
-      for (let i=0; i<str.length; i++){
+      let h = 2166136261 >>> 0;
+      for (let i=0;i<str.length;i++){
         h ^= str.charCodeAt(i);
-        h = Math.imul(h, 16777619);
+        h = Math.imul(h,16777619);
       }
       return h >>> 0;
     }
 
+    function criarRngDaSemente(seedStr, allowAutoGenerate){
+      let s = (seedStr||"").trim();
+      if (!s){
+        if (!allowAutoGenerate) return null;
+        const buf = new Uint32Array(1);
+        crypto.getRandomValues(buf);
+        s = String(buf[0] >>> 0);
+        const inSeed = document.querySelector("#inSeed");
+        if (inSeed) inSeed.value = s;
+      }
+      const hash = hashStringToInt(s);
+      return {
+        rng: mulberry32(hash),
+        seedInfo: `${s} (hash ${hash})`,
+        seedHash: String(hash)
+      };
+    }
+
     function shuffle(arr, rng){
       const a = arr.slice();
-      for (let i=a.length-1; i>0; i--){
-        const j = Math.floor(rng()* (i+1));
+      for (let i=a.length-1;i>0;i--){
+        const j = Math.floor(rng()*(i+1));
         [a[i], a[j]] = [a[j], a[i]];
       }
       return a;
     }
 
-    function formatCSV(rows){
-      const esc = (v)=> '"'+String(v).replaceAll('"','""')+'"';
-      const lines = [['Posicao','Nome']].concat(rows.map((n,i)=>[i+1,n])).map(r=>r.map(esc).join(','));
-      return lines.join('\n');
+    async function sha256(text){
+      const enc = new TextEncoder();
+      const data = enc.encode(text);
+      const hash = await crypto.subtle.digest("SHA-256",data);
+      return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,"0")).join("");
     }
 
     function baixarArquivo(nome, conteudo, mime){
       const blob = new Blob([conteudo], {type: mime});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = nome; a.click();
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nome;
+      a.click();
       URL.revokeObjectURL(url);
-    }
-
-    async function sha256(text){
-      const enc = new TextEncoder();
-      const data = enc.encode(text);
-      const hash = await crypto.subtle.digest('SHA-256', data);
-      const bytes = Array.from(new Uint8Array(hash));
-      return bytes.map(b=>b.toString(16).padStart(2,'0')).join('');
     }
 
     // ===== DOM =====
@@ -203,210 +262,289 @@
     const infoAudit = $('#infoAudit');
     const inLista = $('#inLista');
     const btnSortear = $('#btnSortear');
+    const btnVerificar = $('#btnVerificar');
+    const btnLimpar = $('#btnLimpar');
+    const btnCopyAudit = $('#btnCopyAudit');
+    const btnDownAudit = $('#btnDownAudit');
+    const btnDownAuditPDF = $('#btnDownAuditPDF');
+    const inSeed = $('#inSeed');
+    const inDataOriginal = $('#inDataOriginal');
 
-    // ID único auditável do relatório atual (hash do relatório)
     let currentAuditId = null;
 
-    // ===== Textarea auto-resize (sem barra de rolagem) =====
+    // autosize textarea
     function autoResizeTextarea(el){
       el.style.height = 'auto';
       el.style.height = el.scrollHeight + 'px';
     }
 
-    // ===== Resultado =====
+    // habilita/desabilita Sortear e Verificar conforme regra:
+    // - Sortear: lista preenchida E seed vazia E ISO vazio
+    // - Verificar: lista preenchida E seed preenchida E ISO preenchida
+    function updateButtons(){
+      const raw = inLista.value || '';
+      const hasLista = raw.split(/\r?\n/).some(l => l.trim().length > 0);
+      const hasSeed = inSeed.value.trim().length > 0;
+      const hasIso  = inDataOriginal.value.trim().length > 0;
+
+      const canSort   = hasLista && !hasSeed && !hasIso;
+      const canVerify = hasLista && hasSeed && hasIso;
+
+      btnSortear.disabled = !canSort;
+      btnVerificar.disabled = !canVerify;
+
+      if (canSort)  btnSortear.classList.remove('disabled-btn');
+      else          btnSortear.classList.add('disabled-btn');
+
+      if (canVerify) btnVerificar.classList.remove('disabled-btn');
+      else           btnVerificar.classList.add('disabled-btn');
+    }
+
+    // render resultado
     function renderResultado(lista){
       tb.innerHTML = '';
       lista.forEach((nome, idx)=>{
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="px-3 py-2 text-slate-500">${idx+1}</td><td class="px-3 py-2">${nome}</td>`;
+        tr.innerHTML =
+          `<td class="px-3 py-2 text-slate-500">${idx+1}</td>` +
+          `<td class="px-3 py-2">${nome}</td>`;
         if (idx % 2 === 1) tr.className = 'bg-slate-50';
         tb.appendChild(tr);
       });
     }
 
-    // ===== Relatório de Auditoria =====
-   
-async function gerarRelatorio({seedInfo, seedHash, entradasBrutas, entradasProcessadas, resultado}){
-  const agora = new Date();
-  const iso = agora.toISOString();
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const header = [
-    'RELATÓRIO DE AUDITORIA — SORTEIO POR LISTA',
-    '------------------------------------------------------------',
-    `Data/Hora: ${agora.toLocaleString()} (${tz})`,
-    `ISO: ${iso}`,
-    `Navegador: ${navigator.userAgent}`,
-    `Semente: ${seedInfo}`,
-  ].join('\n');
+    // gerar relatório
+    async function gerarRelatorio({seedInfo, seedHash, entradasBrutas, entradasProcessadas, resultado, dataIso}){
+      let agora;
+      if (dataIso){
+        // Verificação: tenta reconstruir pela data/hora ISO Local informada
+        agora = new Date(dataIso);
+        if (isNaN(agora.getTime())){
+          agora = new Date();
+        }
+      } else {
+        // Sorteio oficial: data atual
+        agora = new Date();
+      }
 
-  const entradasTxt = entradasBrutas.join('\n');
-  const processadasTxt = entradasProcessadas.join('\n');
-  const resultadoTxt = resultado.join('\n');
+      const tz = 'America/Sao_Paulo';
 
-  const hashInput = await sha256('INPUT\n'+entradasTxt);
-  const hashProc  = await sha256('PROC\n'+processadasTxt);
-  const hashOut   = await sha256('OUTPUT\n'+resultadoTxt);
+      const dataHoraLocal = new Intl.DateTimeFormat('pt-BR', {
+        timeZone: tz,
+        dateStyle: 'short',
+        timeStyle: 'medium'
+      }).format(agora);
 
-  const corpo = [
-    '',
-    '=== Métricas ===',
-    `Entradas (brutas): ${entradasBrutas.length}`,
-    `Entradas (após limpeza): ${entradasProcessadas.length}`,
-    `Resultado (total): ${resultado.length}`,
-    '',
-    '=== Opções aplicadas ===',
-    `Remover vazias: ${$('#ckTrim').checked}`,
-    `Remover duplicados: ${$('#ckDedup').checked}`,
-    `Ordenar antes de embaralhar: ${$('#ckSort').checked}`,
-    '',
-    '=== Hashes (SHA-256) ===',
-    `Seed hash: ${seedHash}`,
-    `Input hash: ${hashInput}`,
-    `Processado hash: ${hashProc}`,
-    `Resultado hash: ${hashOut}`,
-    '',
-    '=== Entradas (brutas) ===',
-    entradasTxt,
-    '',
-    '=== Entradas (processadas) ===',
-    processadasTxt,
-    '',
-    '=== Resultado (ordem final) ===',
-    resultado.map((n,i)=>`${String(i+1).padStart(3,' ')}. ${n}`).join('\n')
-  ].join('\n');
+      const isoUtc = agora.toISOString();
 
-  // texto base do relatório (SEM ID ainda)
-  const relBase = header + '\n' + corpo + '\n';
+      const isoLocalCore = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: tz,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).format(agora).replace(' ', 'T');
+      const isoLocal = isoLocalCore + '-03:00';
 
-  // Hash do relatório base = ID único auditável
-  const hashRel = await sha256('RELATORIO\n' + relBase);
-  currentAuditId = hashRel;
+      const header = [
+        'RELATÓRIO DE AUDITORIA — SORTEIO POR LISTA',
+        '------------------------------------------------------------',
+        `Data/Hora: ${dataHoraLocal} (${tz})`,
+        `ISO (UTC): ${isoUtc}`,
+        `ISO Local (${tz}): ${isoLocal}`,
+        `Navegador: ${navigator.userAgent}`,
+        `Semente: ${seedInfo}`,
+      ].join('\n');
 
-  // Agora, adicionamos o ID como última linha visível do relatório
-  const relComId = relBase + '\nID: ' + hashRel + '\n';
+      const entradasTxt = entradasBrutas.join('\n');
+      const processadasTxt = entradasProcessadas.join('\n');
+      const resultadoTxt = resultado.join('\n');
 
-  txAudit.value = relComId;
-  infoAudit.textContent =
-    `Gerado em ${agora.toLocaleString()} — ${resultado.length} nomes — ID: ${hashRel.slice(0,16)}…`;
+      const hashInput = await sha256('INPUT\n'+entradasTxt);
+      const hashProc  = await sha256('PROC\n'+processadasTxt);
+      const hashOut   = await sha256('OUTPUT\n'+resultadoTxt);
 
-  $('#btnCopyAudit').disabled = false;
-  $('#btnDownAudit').disabled = false;
-  $('#btnDownAuditPDF').disabled = false;
-}
+      const corpo = [
+        '',
+        '=== Métricas ===',
+        `Entradas (brutas): ${entradasBrutas.length}`,
+        `Entradas (após limpeza): ${entradasProcessadas.length}`,
+        `Resultado (total): ${resultado.length}`,
+        '',
+        '=== Opções aplicadas ===',
+        `Remover vazias: ${$('#ckTrim').checked}`,
+        `Remover duplicados: ${$('#ckDedup').checked}`,
+        `Ordenar antes de embaralhar: ${$('#ckSort').checked}`,
+        '',
+        '=== Hashes (SHA-256) ===',
+        `Seed hash: ${seedHash}`,
+        `Input hash: ${hashInput}`,
+        `Processado hash: ${hashProc}`,
+        `Resultado hash: ${hashOut}`,
+        '',
+        '=== Entradas (brutas) ===',
+        entradasTxt,
+        '',
+        '=== Entradas (processadas) ===',
+        processadasTxt,
+        '',
+        '=== Resultado (ordem final) ===',
+        resultado.map((n,i)=>`${String(i+1).padStart(3,' ')}. ${n}`).join('\n')
+      ].join('\n');
 
+      const relBase = header + '\n' + corpo + '\n';
+      const hashRel = await sha256('RELATORIO\n' + relBase);
+      currentAuditId = hashRel;
 
-    // ===== Sorteio =====
+      const relComId = relBase + '\nID: ' + hashRel + '\n';
+
+      txAudit.value = relComId;
+      infoAudit.textContent =
+        `Gerado em ${dataHoraLocal} — ${resultado.length} nomes — ID: ${hashRel.slice(0,16)}…`;
+
+      // No sorteio oficial (dataIso vazio), preenche automaticamente o ISO Local
+      if (!dataIso){
+        inDataOriginal.value = isoLocal;
+      }
+
+      btnCopyAudit.disabled = false;
+      btnDownAudit.disabled = false;
+      btnDownAuditPDF.disabled = false;
+
+      updateButtons();
+    }
+
+    // Sorteio oficial
     function sortear(){
-      const raw = $('#inLista').value;
-      const seedStr = $('#inSeed').value.trim();
-      const opts = {trim: $('#ckTrim').checked, dedup: $('#ckDedup').checked, presort: $('#ckSort').checked};
+      const raw = inLista.value;
+      const opts = {
+        trim: $('#ckTrim').checked,
+        dedup: $('#ckDedup').checked,
+        presort: $('#ckSort').checked
+      };
 
       const brutas = (raw||'').split(/\r?\n/);
       const base = parseLista(raw, opts);
-      if (base.length === 0){ alert('Cole pelo menos um nome.'); return; }
-
-      let seedInfo = '';
-      let rng; let seedHash = '';
-      if (seedStr){
-        const hash = hashStringToInt(seedStr);
-        rng = mulberry32(hash);
-        seedInfo = `${seedStr} (hash ${hash})`;
-        seedHash = (hash >>> 0).toString();
-      } else {
-        const buf = new Uint32Array(1);
-        crypto.getRandomValues(buf);
-        const h = buf[0] >>> 0;
-        rng = mulberry32(h);
-        seedInfo = `${h}`;
-        seedHash = h.toString();
+      if (base.length === 0){
+        alert('Cole pelo menos um nome.');
+        return;
       }
 
-      const embaralhada = shuffle(base, rng);
-      const resultado = embaralhada; // sempre fila completa
+      const pack = criarRngDaSemente(inSeed.value, true);
+      const rng = pack.rng;
+      const seedInfo = pack.seedInfo;
+      const seedHash = pack.seedHash;
+
+      const resultado = shuffle(base, rng);
 
       renderResultado(resultado);
       infoSeed.textContent = `Semente: ${seedInfo} • Entradas: ${base.length}`;
-
-      $('#btnCopiar').disabled = false;
-      $('#btnCSV').disabled = false;
 
       gerarRelatorio({
         seedInfo,
         seedHash,
         entradasBrutas: brutas,
         entradasProcessadas: base,
-        resultado
-      });
-
-      // Desativar o botão até limpar (evita 2 sorteios seguidos)
-      btnSortear.disabled = true;
-      btnSortear.classList.add('opacity-60', 'cursor-not-allowed');
-    }
-
-    // ===== Copiar / CSV =====
-    function copiar(){
-      const linhas = [...tb.querySelectorAll('tr')].map(tr=>{
-        const tds = tr.querySelectorAll('td');
-        return `${tds[0].textContent}\t${tds[1].textContent}`;
-      }).join('\n');
-      if (!linhas){ return; }
-      navigator.clipboard.writeText(linhas).then(()=>{
-        $('#btnCopiar').textContent = 'Copiado!';
-        setTimeout(()=>$('#btnCopiar').textContent='Copiar resultado', 1000);
+        resultado,
+        dataIso: null
       });
     }
 
-    function baixarCSV(){
-      const nomes = [...tb.querySelectorAll('tr')].map(tr=>tr.querySelectorAll('td')[1].textContent);
-      if (nomes.length===0) return;
-      const csv = formatCSV(nomes);
-      baixarArquivo('fila_sorteada.csv', csv, 'text/csv;charset=utf-8');
+    // Verificação (reprodução)
+    function verificar(){
+      const raw = inLista.value;
+      const seedStr = inSeed.value.trim();
+      const dataIsoLocal = inDataOriginal.value.trim();
+
+      if (!seedStr || !dataIsoLocal){
+        alert('Para verificar, preencha a Semente e o ISO Local do sorteio original.');
+        return;
+      }
+
+      const opts = {
+        trim: $('#ckTrim').checked,
+        dedup: $('#ckDedup').checked,
+        presort: $('#ckSort').checked
+      };
+
+      const brutas = (raw||'').split(/\r?\n/);
+      const base = parseLista(raw, opts);
+      if (base.length === 0){
+        alert('Cole a mesma lista usada no sorteio original para verificar.');
+        return;
+      }
+
+      const pack = criarRngDaSemente(seedStr, false);
+      if (!pack){
+        alert('Informe uma semente válida para verificar.');
+        return;
+      }
+
+      const rng = pack.rng;
+      const seedInfo = pack.seedInfo;
+      const seedHash = pack.seedHash;
+
+      const resultado = shuffle(base, rng);
+
+      renderResultado(resultado);
+      infoSeed.textContent = `Verificação com semente: ${seedInfo} • Entradas: ${base.length}`;
+
+      gerarRelatorio({
+        seedInfo,
+        seedHash,
+        entradasBrutas: brutas,
+        entradasProcessadas: base,
+        resultado,
+        dataIso: dataIsoLocal
+      });
     }
 
-    // ===== Limpar =====
+    // Limpar
     function limpar(){
-      $('#inLista').value = '';
-      $('#inSeed').value = '';
+      inLista.value = '';
+      inSeed.value = '';
+      inDataOriginal.value = '';
       tb.innerHTML = '';
       infoSeed.textContent = '';
       txAudit.value = '';
       infoAudit.textContent = '';
-      $('#btnCopiar').disabled = true;
-      $('#btnCSV').disabled = true;
-      $('#btnCopyAudit').disabled = true;
-      $('#btnDownAudit').disabled = true;
-      $('#btnDownAuditPDF').disabled = true;
       currentAuditId = null;
-      autoResizeTextarea(inLista);
 
-      // Reativar botão de sorteio
-      btnSortear.disabled = false;
-      btnSortear.classList.remove('opacity-60', 'cursor-not-allowed');
+      btnCopyAudit.disabled = true;
+      btnDownAudit.disabled = true;
+      btnDownAuditPDF.disabled = true;
+
+      autoResizeTextarea(inLista);
+      updateButtons();
     }
 
-    // ===== Copiar / Download relatório =====
+    // Copiar relatório
     function copiarAudit(){
       if (!txAudit.value) return;
       navigator.clipboard.writeText(txAudit.value).then(()=>{
-        $('#btnCopyAudit').textContent = 'Relatório copiado!';
-        setTimeout(()=>$('#btnCopyAudit').textContent='Copiar relatório', 1000);
+        btnCopyAudit.textContent = 'Relatório copiado!';
+        setTimeout(()=>btnCopyAudit.textContent='Copiar relatório', 1000);
       });
     }
 
+    // Baixar TXT
     function baixarAudit(){
       if (!txAudit.value) return;
       const id = currentAuditId ? currentAuditId.slice(0,16) : 'sorteio';
       baixarArquivo(`relatorio_auditoria_${id}.txt`, txAudit.value, 'text/plain;charset=utf-8');
     }
 
-    // ===== PDF do relatório (com ID único) =====
+    // Baixar PDF
     function baixarAuditPDF(){
       if (!txAudit.value) return;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
       const margin = 10;
-      const maxWidth = 190; // 210 - 2*10
+      const maxWidth = 190;
       let y = margin;
 
       doc.setFont('courier', 'normal');
@@ -414,9 +552,9 @@ async function gerarRelatorio({seedInfo, seedHash, entradasBrutas, entradasProce
 
       const lines = txAudit.value.split('\n');
       lines.forEach(line => {
-        const splitted = doc.splitTextToSize(line, maxWidth);
-        splitted.forEach(part => {
-          if (y > 280) { // quebra de página simples
+        const wrapped = doc.splitTextToSize(line, maxWidth);
+        wrapped.forEach(part => {
+          if (y > 280) {
             doc.addPage();
             y = margin;
           }
@@ -425,29 +563,29 @@ async function gerarRelatorio({seedInfo, seedHash, entradasBrutas, entradasProce
         });
       });
 
-      const id = currentAuditId ? currentAuditId.slice(0, 16) : 'sorteio';
-      const fileName = `relatorio_auditoria_${id}.pdf`;
-      doc.save(fileName);
+      const id = currentAuditId ? currentAuditId.slice(0,16) : 'sorteio';
+      doc.save(`relatorio_auditoria_${id}.pdf`);
     }
 
-    // ===== Eventos =====
+    // Eventos
     btnSortear.addEventListener('click', sortear);
-    $('#btnCopiar').addEventListener('click', copiar);
-    $('#btnCSV').addEventListener('click', baixarCSV);
-    $('#btnLimpar').addEventListener('click', limpar);
-    $('#btnCopyAudit').addEventListener('click', copiarAudit);
-    $('#btnDownAudit').addEventListener('click', baixarAudit);
-    $('#btnDownAuditPDF').addEventListener('click', baixarAuditPDF);
+    btnVerificar.addEventListener('click', verificar);
+    btnLimpar.addEventListener('click', limpar);
+    btnCopyAudit.addEventListener('click', copiarAudit);
+    btnDownAudit.addEventListener('click', baixarAudit);
+    btnDownAuditPDF.addEventListener('click', baixarAuditPDF);
 
-    // auto-resize da textarea de participantes
-    inLista.addEventListener('input', () => autoResizeTextarea(inLista));
-    // ajusta na carga inicial
-    window.addEventListener('DOMContentLoaded', () => {
+    inLista.addEventListener('input', ()=>{
       autoResizeTextarea(inLista);
+      updateButtons();
+    });
+    inSeed.addEventListener('input', updateButtons);
+    inDataOriginal.addEventListener('input', updateButtons);
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+      autoResizeTextarea(inLista);
+      updateButtons();
     });
   </script>
 </body>
 </html>
-
-
-
