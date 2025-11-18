@@ -1,48 +1,164 @@
-🎲 Sorteador de Fila Única (Leiloeiros/Avaliadores)
-Arquivo Principal: index.html (Contém todo o código HTML, CSS e JavaScript)
+📘 Sorteio de Fila Única — Leiloeiros e Avaliadores
+Coordenadoria de Leilões de Veículos — DETRAN-SP
 
-Este repositório hospeda o código-fonte completo e aberto do utilitário de Sorteio Randômico para Formação de Fila Única, destinado à Coordenadoria de Leilões do DETRAN/SP.
+Sistema público para geração de ordem aleatória de profissionais, com auditoria completa.
 
-O objetivo desta ferramenta é garantir a impessoalidade, a rotatividade justa e a transparência integral na escalação de Leiloeiros e Avaliadores credenciados para os serviços relacionados aos leilões.
+📌 Finalidade do Sistema
 
-🛡️ Transparência e Auditabilidade
-O código utiliza um algoritmo de geração de números pseudoaleatórios que é reproduzível. Isso significa que, fornecendo a mesma Semente (Seed) e a mesma lista de entrada, o resultado do sorteio será sempre idêntico.
+Este repositório disponibiliza o código-fonte completo do Sistema de Sorteio de Fila Única da Coordenadoria de Leilões de Veículos do DETRAN-SP.
 
-1. Semente (Seed)
-A semente é o principal fator de transparência:
+O sistema é utilizado para:
 
-Semente Informada: Se a semente for preenchida pelo usuário (ex: a data do leilão), o sorteio é determinístico e pode ser repetido por qualquer pessoa.
+Sortear de forma transparente e auditável a ordem de Leiloeiros e Profissionais terceirizados habilitados para avaliação veicular;
 
-Semente Aleatória: Se o campo for deixado vazio, o sistema gera uma semente verdadeiramente randômica (crypto.getRandomValues) e a exibe no resultado. Esta semente deve ser registrada em ata para que o sorteio possa ser auditado e validado a qualquer momento.
+Garantir isonomia entre os participantes;
 
-2. Relatório de Auditoria
-Após cada sorteio, o sistema gera um Relatório de Auditoria detalhado, contendo:
+Registrar rastreabilidade e integridade dos resultados produzidos;
 
-Semente Utilizada: O valor numérico da semente que gerou o sorteio.
+Disponibilizar o código publicamente para evitar dúvidas sobre manipulação, vieses ou alterações indevidas durante o processo de sorteio.
 
-Hashes (SHA-256): Hashes criptográficos da lista de entrada, da lista processada e da lista final. A comparação desses hashes garante que a lista não foi alterada após o sorteio.
+O objetivo é reforçar o compromisso institucional com a transparência, segurança jurídica, controle social e boa governança pública.
 
-Detalhes de Processamento: Informação sobre se as opções de "remover duplicados" e "ordenar antes de embaralhar" foram aplicadas.
+⚙️ Como o Sistema Funciona
 
-🚀 Como Utilizar (Validação e Execução)
-O sistema é um único arquivo HTML/JavaScript e não requer instalação.
+O sistema é executado diretamente no navegador e não depende de servidor.
+Todo o processamento (incluindo o sorteio e geração de auditoria) ocorre de forma local, reforçando a integridade do processo.
 
-Abertura: Baixe ou clone o repositório. Simplesmente abra o arquivo index.html em qualquer navegador moderno.
+Fluxo operacional
 
-Lista de Entrada: Cole a lista completa e atualizada dos Leiloeiros/Avaliadores credenciados e aptos na caixa de texto, um nome por linha.
+O usuário (servidor responsável) insere a lista de nomes em uma caixa de texto.
 
-Execução: Clique em "Sortear".
+O sistema:
 
-Ata/Registro: Registre a Semente exibida no resultado e anexe o Relatório de Auditoria (Baixar TXT) na ata ou processo administrativo referente ao sorteio.
+limpa a lista,
 
-Algoritmo de Randomização
-O código utiliza a função Mulberry32 para a geração de números pseudoaleatórios, um algoritmo de domínio público conhecido por ser rápido e produzir bons resultados para este tipo de aplicação, desde que a semente inicial seja segura. A semente inicial, quando não fornecida, é gerada pela API criptográfica nativa do navegador (crypto.getRandomValues).
+remove duplicados,
 
-💻 Desenvolvimento e Manutenção
-O código está contido integralmente no arquivo index.html.
+ordena, se o usuário desejar,
 
-Linguagem: JavaScript (cliente-side)
+aplica o sorteio utilizando um gerador de números pseudoaleatórios com semente controlável.
 
-Estilização: Tailwind CSS (via CDN)
+Após o sorteio:
 
-Randomização: Funções mulberry32 e shuffle implementadas em JavaScript.
+o botão “Realizar Sorteio” é desabilitado, impedindo múltiplos sorteios inadvertidos;
+
+o relatório de auditoria é gerado automaticamente;
+
+o usuário pode baixar o relatório em TXT ou PDF.
+
+🔐 Integridade e Auditoria
+
+O sistema possui mecanismos formais de auditoria para garantir que o sorteio não seja adulterado.
+
+✔️ Registro de auditoria
+
+O relatório inclui:
+
+Data e hora completa do sorteio;
+
+Informações do navegador e ambiente;
+
+Lista original de participantes;
+
+Lista processada (sem duplicados e aplicada a limpeza);
+
+Lista final sorteada;
+
+Hashes independentes:
+
+HASH da semente do sorteio
+
+HASH das entradas brutas
+
+HASH das entradas processadas
+
+HASH da saída (resultado final)
+
+HASH do relatório final completo (ID único auditável)
+
+O último hash funciona como identificador único do sorteio, permitindo verificar posteriormente a integridade, garantindo que:
+
+o relatório não foi alterado;
+
+o sorteio pode ser reproduzido (quando a mesma semente for utilizada);
+
+o processo pode ser auditado por qualquer pessoa.
+
+✔️ Transparência do código
+
+Todo o código é aberto neste repositório, possibilitando:
+
+Verificação de integridade;
+
+Auditoria externa;
+
+Replicação independente do sorteio;
+
+Eliminação de dúvidas sobre manipulação.
+
+🛠️ Tecnologias Utilizadas
+
+HTML + TailwindCSS — interface leve e responsiva
+
+JavaScript — lógica do sorteio e auditoria
+
+jsPDF — geração de PDF diretamente no navegador
+
+GitHub Pages — hospedagem pública e imutável
+
+Nenhum backend, servidor ou banco de dados é usado.
+
+🚀 Como Executar
+
+Acesse o GitHub Pages configurado neste repositório
+(ou abra o arquivo index.html localmente em qualquer navegador moderno).
+
+Cole a lista de participantes no campo indicado.
+
+Clique em Realizar Sorteio.
+
+Baixe os arquivos de auditoria (TXT ou PDF) conforme necessidade.
+
+Clique em Limpar para habilitar um novo sorteio.
+
+🧩 Estrutura do Repositório
+/
+├── index.html    # Interface completa do sistema
+├── README.md     # Este documento
+└── /assets       # (opcional) Pastas para logos ou arquivos adicionais
+
+🧾 Conformidade e Princípios
+
+Este projeto atende aos princípios constitucionais aplicáveis à Administração Pública:
+
+Legalidade
+
+Impessoalidade
+
+Moralidade
+
+Publicidade
+
+Eficiência
+
+E reforça diretrizes de:
+
+Transparência ativa
+
+Controle social
+
+Rastreabilidade
+
+Isonomia no atendimento
+
+🛡️ Aviso Institucional
+
+Este sistema é disponibilizado pela Coordenadoria de Leilões de Veículos do DETRAN-SP exclusivamente para:
+
+sorteios oficiais relacionados às atividades da Coordenadoria;
+
+processos de gestão dos leilões veiculares;
+
+reforço da transparência pública.
+
+Não deve ser utilizado para fins pessoais, comerciais ou não autorizados.
