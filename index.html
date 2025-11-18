@@ -116,7 +116,7 @@
             <button id="btnDownAudit" class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
               Baixar TXT
             </button>
-            <!-- novo botão PDF -->
+            <!-- botão PDF -->
             <button id="btnDownAuditPDF" class="px-3 py-2 rounded-2xl bg-slate-200 hover:bg-slate-300" disabled>
               Baixar PDF
             </button>
@@ -202,6 +202,7 @@
     const txAudit = $('#txAudit');
     const infoAudit = $('#infoAudit');
     const inLista = $('#inLista');
+    const btnSortear = $('#btnSortear');
 
     // ID único auditável do relatório atual (hash do relatório)
     let currentAuditId = null;
@@ -328,6 +329,10 @@
         entradasProcessadas: base,
         resultado
       });
+
+      // Desativar o botão até limpar (evita 2 sorteios seguidos)
+      btnSortear.disabled = true;
+      btnSortear.classList.add('opacity-60', 'cursor-not-allowed');
     }
 
     // ===== Copiar / CSV =====
@@ -365,6 +370,10 @@
       $('#btnDownAuditPDF').disabled = true;
       currentAuditId = null;
       autoResizeTextarea(inLista);
+
+      // Reativar botão de sorteio
+      btnSortear.disabled = false;
+      btnSortear.classList.remove('opacity-60', 'cursor-not-allowed');
     }
 
     // ===== Copiar / Download relatório =====
@@ -414,7 +423,7 @@
     }
 
     // ===== Eventos =====
-    $('#btnSortear').addEventListener('click', sortear);
+    btnSortear.addEventListener('click', sortear);
     $('#btnCopiar').addEventListener('click', copiar);
     $('#btnCSV').addEventListener('click', baixarCSV);
     $('#btnLimpar').addEventListener('click', limpar);
@@ -431,4 +440,5 @@
   </script>
 </body>
 </html>
+
 
