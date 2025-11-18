@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validador de Relatório — Sorteio Fila Única</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .mono{
+      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,liberation mono,monospace;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  <div class="max-w-5xl mx-auto p-6 space-y-6">
+
+    <header class="space-y-2">
+      <h1 class="text-2xl font-bold">
+        Validador de Relatório de Auditoria — Sorteio Fila Única
+      </h1>
+      <p class="text-sm text-slate-600">
+        Cole o relatório de auditoria (TXT) gerado pelo sistema de sorteio para conferir se o ID corresponde ao conteúdo.
+      </p>
+      <p class="text-xs text-slate-500">
+        O validador remove a linha <strong>ID: ...</strong>, calcula
+        <code class="mono bg-slate-100 px-1 py-0.5 rounded">SHA-256("RELATORIO\n" + texto)</code>
+        e compara com o ID registrado.
+      </p>
+    </header>
+
+    <section class="space-y-4 bg-white rounded-2xl shadow p-4">
+      <div class="space-y-2">
+        <label for="txtRelatorio" class="text-sm font-medium">
+          Relatório de Auditoria (texto completo)
+        </label>
+        <textarea id="txtRelatorio" rows="16"
+          class="w-full border rounded-xl p-3 mono"
+          placeholder="Cole aqui o conteúdo completo do arquivo TXT gerado pelo sistema."></textarea>
+      </div>
+
+      <div class="flex gap-3">
+        <button id="btnValidar"
+                class="px-4 py-2 rounded-2xl bg-emerald-600 text-white hover:bg-emerald-700">
+          Validar
+        </button>
+        <button id="btnLimpar"
+                class="px-4 py-2 rounded-2xl bg-rose-100 hover:bg-rose-200">
+          Limpar
+        </button>
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div class="bg-white rounded-2xl shadow p-4 space-y-3">
+        <h2 class="font-semibold">Resultado da Validação</h2>
+
+        <div class="space-y-1">
+          <div class="text-xs font-semibold text-slate-500">ID encontrado no relatório</div>
+          <div id="outHashRel"
+               class="mono text-sm break-all bg-slate-100 rounded-xl px-3 py-2">
+            —
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-xs font-semibold text-slate-500">Hash calculado a partir do texto</div>
+          <div id="outHashCalc"
+               class="mono text-sm break-all bg-slate-100 rounded-xl px-3 py-2">
+            —
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-xs font-semibold text-slate-500">Status</div>
+          <div id="outStatus"
+               class="text-sm font-semibold text-slate-500">
+            Aguardando validação.
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <div class="text-xs font-semibold text-slate-500">Detalhes</div>
+          <pre id="outDetalhes"
+               class="mono text-xs bg-slate-50 border rounded-xl px-3 py-2 overflow-x-auto">
+Nenhum cálculo realizado ainda.
+          </pre>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    async function sha256(text){
+      const enc = new TextEncoder();
+      const data = enc.encode(text);
+      const hash = await crypto.subtle.digest('SHA-256', data);
+      const bytes = Array.from(new Uint8Array(hash));
+      return bytes.map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    const $ = (s)=>document.querySelector(s);
+
+    function separarTextoEId(texto){
+      // normaliza quebras de linha
+      let linhas = texto
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .split('\n');
+
+      // remove espaços laterais de cada linha
+      linhas = linhas.map(l => l.replace(/\s+$/,''));
+
+      // procura a ÚLTIMA linha que comece com "ID:"
+      let id = null;
+      let idxId = -1;
+      for (let i = linhas.length - 1; i >= 0; i--){
+        const l = linhas[i].trim();
+        const m = l.match(/^ID:\s*([0-9a-fA-F]{16,64})/);
+        if (m){
+          id = m[1].toLowerCase();
+          idxId = i;
+          break;
+        }
+      }
+
+      if (!id){
+        return { id: null, textoSemId: linhas.join('\n') };
+      }
+
+      // remove a linha do ID do texto que será hasheado
+      linhas.splice(idxId, 1);
+
+      // remove linhas em branco no final
+      while (linhas.length && linhas[linhas.length-1].trim() === ''){
+        linhas.pop();
+      }
+
+      const textoSemId = linhas.join('\n') + '\n'; // mesmo padrão do sistema (relBase + '\n')
+      return { id, textoSemId };
+    }
+
+    async function validar(){
+      const relBruto = $('#txtRelatorio').value;
+      if (!relBruto.trim()){
+        alert('Cole o conteúdo do relatório de auditoria para validar.');
+        return;
+      }
+
+      const { id, textoSemId } = separarTextoEId(relBruto);
+
+      $('#outHashRel').textContent = id ? id : 'ID não encontrado (linha "ID: ...").';
+
+      const detalhes = [];
+
+      if (!id){
+        $('#outHashCalc').textContent = '—';
+        $('#outStatus').textContent =
+          'Não foi possível localizar a linha "ID: ..." no relatório.';
+        $('#outStatus').className = 'text-sm font-semibold text-amber-700';
+        detalhes.push('O relatório não contém a linha final no formato:');
+        detalhes.push('  ID: <hash SHA-256>');
+        $('#outDetalhes').textContent = detalhes.join('\n');
+        return;
+      }
+
+      // calcula hash do texto sem a linha de ID, com prefixo RELATORIO\n
+      const textoParaHash = 'RELATORIO\n' + textoSemId;
+      const calculado = await sha256(textoParaHash);
+
+      $('#outHashCalc').textContent = calculado;
+
+      detalhes.push(`Comprimento do texto usado no hash (caracteres): ${textoSemId.length}`);
+      detalhes.push(`Linhas do texto usado no hash: ${textoSemId.split('\n').length}`);
+      detalhes.push('');
+      detalhes.push(`ID encontrado no relatório: ${id}`);
+      detalhes.push(`Hash calculado:           ${calculado}`);
+
+      if (id === calculado){
+        $('#outStatus').textContent =
+          'RELATÓRIO VÁLIDO — o ID corresponde ao conteúdo do relatório.';
+        $('#outStatus').className = 'text-sm font-semibold text-emerald-700';
+      } else {
+        $('#outStatus').textContent =
+          'RELATÓRIO DIVERGENTE — o ID NÃO corresponde ao conteúdo do relatório.';
+        $('#outStatus').className = 'text-sm font-semibold text-rose-700';
+      }
+
+      $('#outDetalhes').textContent = detalhes.join('\n');
+    }
+
+    function limpar(){
+      $('#txtRelatorio').value = '';
+      $('#outHashCalc').textContent = '—';
+      $('#outHashRel').textContent = '—';
+      $('#outStatus').textContent = 'Aguardando validação.';
+      $('#outStatus').className = 'text-sm font-semibold text-slate-500';
+      $('#outDetalhes').textContent = 'Nenhum cálculo realizado ainda.';
+    }
+
+    $('#btnValidar').addEventListener('click', validar);
+    $('#btnLimpar').addEventListener('click', limpar);
+  </script>
+</body>
+</html>
