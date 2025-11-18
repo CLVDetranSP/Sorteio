@@ -149,6 +149,51 @@ Este sistema é disponibilizado pela Coordenadoria de Leilões de Veículos do D
 
 Sorteios oficiais relacionados às atividades da Coordenadoria;
 
+✔️ Como validar um relatório
+
+Realize um sorteio e baixe o relatório TXT.
+
+Acesse o validador pelo navegador (GitHub Pages ou local):
+
+./validador.html
+
+
+Cole todo o conteúdo do relatório dentro do validador.
+
+Clique em Validar.
+
+O sistema irá:
+
+localizar automaticamente a linha ID: ...;
+
+remover essa linha do texto;
+
+recalcular o hash corretamente usando o mesmo padrão do sistema de sorteio;
+
+comparar os valores.
+
+🟢 Resultado possível
+
+RELATÓRIO VÁLIDO
+O ID corresponde exatamente ao conteúdo. O relatório não sofreu alterações.
+
+🔴 Resultado possível
+
+RELATÓRIO DIVERGENTE
+O ID não corresponde ao texto inserido — o relatório foi alterado, truncado ou corrompido.
+
+🎯 Objetivo da validação
+
+Garantir a integridade e autenticidade do sorteio, permitindo:
+
+Auditoria independente;
+
+Comprovação de que o relatório não foi manipulado;
+
+Revisão posterior em processos administrativos;
+
+Transparência perante sociedade e órgãos de controle.
+
 Reforço da transparência pública.
 
 Não deve ser utilizado para fins pessoais, comerciais ou não autorizados.
