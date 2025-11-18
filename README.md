@@ -2,6 +2,8 @@
 
 Sistema público para geração de ordem aleatória de profissionais, com auditoria.
 
+https://clvdetransp.github.io/Sorteio
+
 📌 Finalidade do Sistema
 
 Este repositório disponibiliza o código-fonte completo do Sistema de Sorteio de Fila Única da Coordenadoria de Leilões de Veículos do DETRAN-SP.
@@ -118,7 +120,8 @@ Clique em Limpar para habilitar um novo sorteio.
 /
 ├── index.html       # Interface completa do sistema
 ├── README.md        # Este documento
-├── validador.html   # Interface de validação do sistema
+├── validador.html   # Interface de validação do sorteio
+\
 
 🧾 Conformidade e Princípios
 
@@ -156,7 +159,7 @@ Realize um sorteio e baixe o relatório TXT.
 
 Acesse o validador pelo navegador (GitHub Pages ou local):
 
-clvdetransp.github.io/Sorteio/validador.html
+https://clvdetransp.github.io/Sorteio/validador.html
 
 
 Cole todo o conteúdo do relatório dentro do validador.
