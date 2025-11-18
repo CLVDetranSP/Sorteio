@@ -30,21 +30,15 @@ O usuário (servidor responsável) insere a lista de nomes em uma caixa de texto
 
 O sistema:
 
-limpa a lista,
-
-remove duplicados,
-
-ordena, se o usuário desejar,
-
-aplica o sorteio utilizando um gerador de números pseudoaleatórios com semente controlável.
+Aplica o sorteio utilizando um gerador de números pseudoaleatórios com semente controlável.
 
 Após o sorteio:
 
-o botão “Realizar Sorteio” é desabilitado, impedindo múltiplos sorteios inadvertidos;
+O botão “Realizar Sorteio” é desabilitado, impedindo múltiplos sorteios inadvertidos;
 
-o relatório de auditoria é gerado automaticamente;
+O relatório de auditoria é gerado automaticamente;
 
-o usuário pode baixar o relatório em TXT ou PDF.
+O usuário pode baixar o relatório em TXT ou PDF.
 
 🔐 Integridade e Auditoria
 
@@ -155,10 +149,10 @@ Isonomia no atendimento
 
 Este sistema é disponibilizado pela Coordenadoria de Leilões de Veículos do DETRAN-SP exclusivamente para:
 
-sorteios oficiais relacionados às atividades da Coordenadoria;
+Sorteios oficiais relacionados às atividades da Coordenadoria;
 
-processos de gestão dos leilões veiculares;
+Processos de gestão dos leilões veiculares;
 
-reforço da transparência pública.
+Reforço da transparência pública.
 
 Não deve ser utilizado para fins pessoais, comerciais ou não autorizados.
