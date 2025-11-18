@@ -1,7 +1,6 @@
-📘 Sorteio de Fila Única — Leiloeiros e Avaliadores
-Coordenadoria de Leilões de Veículos — DETRAN-SP
+📘 Sorteio de Fila Única — Coordenadoria de Leilões de Veículos — DETRAN-SP
 
-Sistema público para geração de ordem aleatória de profissionais, com auditoria completa.
+Sistema público para geração de ordem aleatória de profissionais, com auditoria.
 
 📌 Finalidade do Sistema
 
@@ -119,7 +118,6 @@ Clique em Limpar para habilitar um novo sorteio.
 /
 ├── index.html    # Interface completa do sistema
 ├── README.md     # Este documento
-└── /assets       # (opcional) Pastas para logos ou arquivos adicionais
 
 🧾 Conformidade e Princípios
 
@@ -150,8 +148,6 @@ Isonomia no atendimento
 Este sistema é disponibilizado pela Coordenadoria de Leilões de Veículos do DETRAN-SP exclusivamente para:
 
 Sorteios oficiais relacionados às atividades da Coordenadoria;
-
-Processos de gestão dos leilões veiculares;
 
 Reforço da transparência pública.
 
