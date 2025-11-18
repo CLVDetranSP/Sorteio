@@ -12,7 +12,8 @@
     <header class="flex items-center justify-between gap-4">
       <div>
         <h1 class="text-2xl font-bold">Sorteio Fila Única - Coordenadoria de Leilões de Veículos</h1>
-        <p class="text-sm text-slate-600">Sistema para a formação de filas de Leiloeiros e Avaliadores credenciados.</p>       
+        <p class="text-sm text-slate-600">Sistema para a formação de filas de Leiloeiros e Profissionais terceirizados
+habilitados para avaliação veicular.</p>       
       </div>     
     </header>
 
@@ -31,7 +32,7 @@
         </div>
          <div class="grid md:grid-cols-2 gap-3">
           <div>
-            <label class="text-sm font-medium">Semente (opcional)</label>
+            <label class="text-sm font-medium">Semente</label>
             <input id="inSeed" class="w-full border rounded-xl px-3 py-2 mono" placeholder="Ex.: 20251112" />
             <p class="text-xs text-slate-500">Se preencher, o sorteio pode ser reproduzido. Se vazio, a semente será gerada e exibida.</p>
           </div>
@@ -39,7 +40,7 @@
             <div class="flex flex-wrap items-center gap-3">
               <label class="inline-flex items-center gap-2 text-sm"><input id="ckTrim" type="checkbox" class="rounded" checked>Remover linhas vazias</label>
               <label class="inline-flex items-center gap-2 text-sm"><input id="ckDedup" type="checkbox" class="rounded" checked>Remover duplicados (case-insensitive)</label>
-              <label class="inline-flex items-center gap-2 text-sm"><input id="ckSort" type="checkbox" class="rounded">Ordenar alfabeticamente <em>antes</em> de embaralhar</label>
+              <label class="inline-flex items-center gap-2 text-sm"><input id="ckSort" type="checkbox" class="rounded">Ordenar alfabeticamente</label>
             </div>
           </div>
         </div>
