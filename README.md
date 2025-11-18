@@ -116,8 +116,9 @@ Clique em Limpar para habilitar um novo sorteio.
 
 🧩 Estrutura do Repositório
 /
-├── index.html    # Interface completa do sistema
-├── README.md     # Este documento
+├── index.html       # Interface completa do sistema
+├── README.md        # Este documento
+├── validador.html   # Interface de validação do sistema
 
 🧾 Conformidade e Princípios
 
@@ -155,7 +156,7 @@ Realize um sorteio e baixe o relatório TXT.
 
 Acesse o validador pelo navegador (GitHub Pages ou local):
 
-./validador.html
+clvdetransp.github.io/Sorteio/validador.html
 
 
 Cole todo o conteúdo do relatório dentro do validador.
